@@ -1,8 +1,10 @@
-def input(file_name = "input.txt")
+def input(file_name)
   File.open(file_name).readlines
 end
 
-def puzzle(name, mode: :count, file_name: "01/input.txt", answer: nil)
+def puzzle(name, mode: :count, answer: nil)
+  dir = "0" + name.split('.').first
+  file_name = [dir, "input.txt"].join('/')
   puts "---- starting  #{name} ----"
   case mode
   when :count then yield(input(file_name), 0)
