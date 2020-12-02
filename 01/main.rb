@@ -1,31 +1,30 @@
-f = File.open('input.txt').readlines
+require_relative '../helpers.rb'
 
-
-puts "---- starting 1.1 ----"
-found = nil
-f.map(&:to_i).each do |n|
-  break if found
-  f.reverse.map(&:to_i).each do |x|
+puzzle '1.1', mode: :find, answer: 1016131 do |input, found|
+  input.each do |n|
     break if found
-    if n + x == 2020
-      puts "(#{n}) + (#{x}) == 2020"
-      puts n * x
-      found = true
+    input.reverse.each do |x|
+      break if found
+      if n.to_i + x.to_i == 2020
+        puts n.to_i * x.to_i
+        found = true
+      end
     end
   end
 end
 
-puts "---- starting 1.2 ----"
-found = nil
-f.map(&:to_i).each do |n|
-  f.reverse.map(&:to_i).each do |x|
-    next if x == n
-    f.map(&:to_i).each do |z|
-      next if z == x || z == n
-      if n + x + z == 2020
-        puts "(#{n}) + (#{x}) + (#{z}) == 2020"
-        puts n * x * z
-        exit
+puzzle '1.2', mode: :find, answer: 276432018 do |input, found|
+  input.each do |n|
+    break if found
+    input.reverse.each do |x|
+      break if found
+      next if x == n
+      input.each do |z|
+        next if z == x || z == n
+        if n.to_i + x.to_i + z.to_i == 2020
+          puts n.to_i * x.to_i * z.to_i
+          found = true
+        end
       end
     end
   end
