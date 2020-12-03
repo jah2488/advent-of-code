@@ -1,19 +1,19 @@
 require_relative "../helpers"
 
 puzzle "3.1", mode: :count do |input, count|
-  rotation = input.first.length + 1
+  rotation = input.first.length - 1
   left = 3
-  pos = 0
-  input.each.with_index do |line, idx|
-    line = line.chomp
-    space = line[pos]
-    if idx.even?
-      pos = (pos + left) % rotation
-    elsif space == "#"
+  down = 1
+  pos = {x: 0, y: 0}
+  input.length.times do |n|
+    pos[:x] = (pos[:x] + left) % rotation
+    pos[:y] = (pos[:y] + down) % input.length
+    terrain = input[pos[:y]][pos[:x]]
+    if terrain == "#"
       count += 1
     end
-    line[pos] = line[pos] == "#" ? "∆" : "@" if idx.odd?
-    puts "[#{"%4d" % count}][#{idx.even? ? "e" : "o"}][#{"%4d" % idx}][#{"%4d" % pos}] | " + line + " | #{space}"
+
+    puts "[#{"%4d" % count}][#{"%4d" % n}][#{"%4d" % pos[:x]},#{"%4d" % pos[:y]}] | " + input[pos[:y]].chomp + " | #{terrain}"
   end
   puts count
 end
