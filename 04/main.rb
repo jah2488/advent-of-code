@@ -49,41 +49,34 @@ FIELDS = {
   },
   "cid" => {validate: false}
 }
+
 def valid?(field, value)
   v = FIELDS[field]
-  errors = {}
   return true unless v[:validate]
-  errors[:length] = false if v[:length] && !(v[:length] == value.length)
-  errors[:format] = false if v[:format] && !v[:format].match(value)
-  errors[:in_set] = false if v[:in_set] && !v[:in_set].include?(value)
-  errors[:min] = false if v[:min] && (value.to_i < v[:min])
-  errors[:max] = false if v[:max] && (value.to_i > v[:max])
+  return false if v[:length] && !(v[:length] == value.length)
+  return false if v[:format] && !v[:format].match(value)
+  return false if v[:in_set] && !v[:in_set].include?(value)
+  return false if v[:min] && (value.to_i < v[:min])
+  return false if v[:max] && (value.to_i > v[:max])
   if v[:subfield]
     sf = v[:format].match(value)
-    errors["subfield_format"] = false if sf.nil?
-    errors["subfield_min"] = false if v[sf[1].to_sym][:min] > value.to_i
-    errors["subfield_max"] = false if v[sf[1].to_sym][:max] < value.to_i
+    return false if sf.nil?
+    return false if v[sf[1].to_sym][:min] > value.to_i
+    return false if v[sf[1].to_sym][:max] < value.to_i
   end
-
-  if errors.keys.length.zero?
-    true
-  else
-    print field + ": " + value
-    puts errors.inspect
-    puts v.inspect
-    errors.keys.length.zero?
-  end
-rescue => e
-  puts "-" * 10
-  puts e, errors, value, field, v
+  true
 end
 
-def validate_passports(input, count)
+def validate_passports(input, count, strict = false)
   passports = input.split("\n\n")
   passports.each do |pass|
     pass_hash = Hash[pass.split("\n").flat_map { |x| x.split(" ").map { |s| s.split(":") } }]
-    if FIELDS.keys - pass_hash.keys == [] || FIELDS.keys - pass_hash.keys == ["cid"]
-      if pass_hash.all? { |(field, value)| valid?(field, value) }
+    if [["cid"], []].include?(FIELDS.keys - pass_hash.keys)
+      if strict
+        if pass_hash.all? { |(field, value)| valid?(field, value) }
+          count += 1
+        end
+      else
         count += 1
       end
     end
@@ -92,5 +85,9 @@ def validate_passports(input, count)
 end
 
 puzzle "4.1", mode: :count, input: :raw, answer: 239 do |input, count|
-  puts validate_passports(input, count)
+  puts validate_passports(input, count, false)
+end
+
+puzzle "4.2", mode: :count, input: :raw, answer: 188 do |input, count|
+  puts validate_passports(input, count, true)
 end
