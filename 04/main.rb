@@ -21,6 +21,7 @@ FIELDS = {
   },
   "hgt" => {
     validate: true,
+    subfield: true,
     in: {
       min: 59,
       max: 76
@@ -39,7 +40,7 @@ FIELDS = {
   "ecl" => {
     validate: true,
     length: 3,
-    in: %(amb blu brn gry grn hzl oth)
+    in_set: %(amb blu brn gry grn hzl oth)
   },
   "pid" => {
     validate: true,
@@ -48,26 +49,39 @@ FIELDS = {
   },
   "cid" => {validate: false}
 }
-# byr (Birth Year) - four digits; at least 1920 and at most 2002.
-# iyr (Issue Year) - four digits; at least 2010 and at most 2020.
-# eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
-# hgt (Height) - a number followed by either cm or in:
-# If cm, the number must be at least 150 and at most 193.
-# If in, the number must be at least 59 and at most 76.
-# hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
-# ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
-# pid (Passport ID) - a nine-digit number, including leading zeroes.
-# cid (Country ID) - ignored, missing or not.
 def valid?(field, value)
-  validator = FIELDS[field]
-  return true unless validator[:validate]
+  v = FIELDS[field]
+  errors = {}
+  return true unless v[:validate]
+  errors[:length] = false if v[:length] && !(v[:length] == value.length)
+  errors[:format] = false if v[:format] && !v[:format].match(value)
+  errors[:in_set] = false if v[:in_set] && !v[:in_set].include?(value)
+  errors[:min] = false if v[:min] && (value.to_i < v[:min])
+  errors[:max] = false if v[:max] && (value.to_i > v[:max])
+  if v[:subfield]
+    sf = v[:format].match(value)
+    errors["subfield_format"] = false if sf.nil?
+    errors["subfield_min"] = false if v[sf[1].to_sym][:min] > value.to_i
+    errors["subfield_max"] = false if v[sf[1].to_sym][:max] < value.to_i
+  end
+
+  if errors.keys.length.zero?
+    true
+  else
+    print field + ": " + value
+    puts errors.inspect
+    puts v.inspect
+    errors.keys.length.zero?
+  end
+rescue => e
+  puts "-" * 10
+  puts e, errors, value, field, v
 end
 
 def validate_passports(input, count)
   passports = input.split("\n\n")
   passports.each do |pass|
     pass_hash = Hash[pass.split("\n").flat_map { |x| x.split(" ").map { |s| s.split(":") } }]
-    puts pass_hash.inspect
     if FIELDS.keys - pass_hash.keys == [] || FIELDS.keys - pass_hash.keys == ["cid"]
       if pass_hash.all? { |(field, value)| valid?(field, value) }
         count += 1
