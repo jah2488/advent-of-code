@@ -13,6 +13,7 @@ def puzzle(name, mode: :count, input: nil, answer: nil)
   file_name = [dir, "input.txt"].join("/")
   puts "---- starting  #{name} ----"
   case mode
+  when :collection then yield(input(file_name, input), [])
   when :count then yield(input(file_name, input), 0)
   when :find then yield(input(file_name, input), false)
   else; yield(input(file_name))

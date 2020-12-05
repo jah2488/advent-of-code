@@ -1,35 +1,49 @@
 require_relative "../helpers"
 
-puzzle "5.1" do |input|
-  max = 0
-  seat_ids = []
-  input.each do |pass|
-    cmin = 0
-    cmax = 127
-    rmin = 0
-    rmax = 7
-    pass.chomp.chars.each do |dir|
-      cmid = (cmax + cmin) / 2
-      rmid = (rmax + rmin) / 2
-      case dir
-      when "F" then cmax = cmid.round
-      when "B" then cmin = cmid.round + 1
-      when "L" then rmax = rmid.round
-      when "R" then rmin = rmid.round + 1
-      end
-      puts "|%s| (%3d, %3d) , (%1d, %1d)" % [dir, cmin, cmax, rmin, rmax]
+class Cursor
+  attr_accessor :min, :max
+
+  def self.with_max(max)
+    Cursor.new.tap do |c|
+      c.min = 0
+      c.max = max
     end
-    seat_id = cmax * 8 + rmax
+  end
+
+  def lower!
+    self.max = mid.round
+  end
+
+  def higher!
+    self.min = mid + 1
+  end
+
+  def mid
+    ((max + min) / 2).round
+  end
+end
+
+ROWS = 127
+COLS = 7
+
+puzzle "5.1 & 5.2", mode: :collection do |input, seat_ids|
+  input.each do |pass|
+    row = Cursor.with_max(ROWS)
+    col = Cursor.with_max(COLS)
+    pass.chomp.chars.each do |dir|
+      case dir
+      when "F" then row.lower!
+      when "B" then row.higher!
+      when "L" then col.lower!
+      when "R" then col.higher!
+      end
+      puts "|%s| (%3d, %3d) , (%1d, %1d)" % [dir, row.min, row.max, col.min, col.max]
+    end
+    seat_id = row.max * 8 + col.max
     puts seat_id
     seat_ids << seat_id
-    max = seat_id if seat_id > max
   end
-  puts max
-  (6..900).zip(seat_ids.sort).each.with_index do |(id, seat), idx|
-    print "|%3d| (%3d) (%3d)" % [idx, id, seat]
-    if id != seat
-      print "*" * 10
-    end
-    print "\n"
-  end
+  my_seat = ((6..900).zip(seat_ids.sort).find { |(id, seat)| id != seat }).first
+
+  puts "Highest ID: %s, My Seat ID: %s" % [seat_ids.max, my_seat]
 end
