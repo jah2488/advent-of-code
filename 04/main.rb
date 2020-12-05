@@ -77,6 +77,7 @@ def validate_passports(input, count, strict = false)
           count += 1
         end
       else
+        t open
         count += 1
       end
     end
