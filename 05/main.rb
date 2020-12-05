@@ -37,13 +37,11 @@ puzzle "5.1 & 5.2", mode: :collection do |input, seat_ids|
       when "L" then col.lower!
       when "R" then col.higher!
       end
-      puts "|%s| (%3d, %3d) , (%1d, %1d)" % [dir, row.min, row.max, col.min, col.max]
     end
     seat_id = row.max * 8 + col.max
-    puts seat_id
     seat_ids << seat_id
   end
-  my_seat = ((6..900).zip(seat_ids.sort).find { |(id, seat)| id != seat }).first
+  my_seat = ((6..seat_ids.length).zip(seat_ids.sort).find { |(id, seat)| id != seat }).first
 
   puts "Highest ID: %s, My Seat ID: %s" % [seat_ids.max, my_seat]
 end
