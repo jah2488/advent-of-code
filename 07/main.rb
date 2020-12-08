@@ -12,10 +12,10 @@ def id_for(bag)
   bag.strip.tr(" ", "_").to_sym
 end
 
-def resolve_for(rules, target_bag, excluding = [], depth = 0)
-  containers = rules.select { |bag, _| (v[:can_contain] || []).include?(target_bag) }
+def resolve_for(rules, target_bag, excluding = [])
+  containers = rules.select { |bag, v| (v[:can_contain] || []).include?(target_bag) }
   return excluding if containers.empty?
-  containers.flat_map { |bag, _| resolve_for(rules, bag, excluding | containers.keys, depth + 1) }
+  containers.flat_map { |bag, _| resolve_for(rules, bag, excluding | containers.keys) }
 end
 
 def bags_for(rules, target_bag, including = [], count = 1)
@@ -24,21 +24,9 @@ def bags_for(rules, target_bag, including = [], count = 1)
   containers.map { |name, c| bags_for(rules, name, including | [name], c) * count }.sum + count
 end
 
-test_input = [
-  "light red bags contain 1 bright white bag, 2 muted yellow bags.\n",
-  "dark orange bags contain 3 bright white bags, 4 muted yellow bags.\n",
-  "bright white bags contain 1 shiny gold bag.\n",
-  "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.\n",
-  "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.\n",
-  "dark olive bags contain 3 faded blue bags, 4 dotted black bags.\n",
-  "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.\n",
-  "faded blue bags contain no other bags.\n",
-  "dotted black bags contain no other bags.\n"
-]
-
 puzzle "7.1" do |input|
   rules = {}
-  test_input.each do |rule|
+  input.each do |rule|
     tokens = rule.chomp.match(RULE_RE[rule.count(",")])
     container = id_for(tokens[1])
     sub_bags = if tokens[2] == "no other bags."
@@ -55,6 +43,6 @@ puzzle "7.1" do |input|
       rules[bag][:can_be_contained_by] |= [container]
     end
   end
-  require "pry"
-  binding.pry
+  puts resolve_for(:shiny_gold).uniq.count
+  puts bags_for(:shiny_gold) - 1
 end
