@@ -53,18 +53,8 @@ class String
     "\033[3m#{self}\033[0m"
   end
 
-  def red(level = 6)
-    intensity = case level % 6
-    when 6 then 196
-    when 5 then 160
-    when 4 then 124
-    when 3 then 88
-    when 2 then 52
-    when 1 then 16
-    else
-      0
-    end
-    "\033[38;5;#{intensity}m#{self}\033[0m"
+  def red(level = 1)
+    "\033[31m#{self}\033[0m"
   end
 
   def green
