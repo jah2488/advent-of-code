@@ -3,91 +3,169 @@ require_relative "../helpers"
 # OldRange = (OldMax - OldMin)
 # NewRange = (NewMax - NewMin)
 # NewValue = (((OldValue - OldMin) * NewRange) / OldRange) + NewMin
+# val = ((ran.length * newr) / oldr)
+### print "| %d errors |#{"=" * val} (#{val})/(%d)" % [$errors, ran.length]
+# max = $logs.max_by { |x| x.length }.length
+# str = "[%3d]|%3s %1s%3d|%4d|%3s idx|"
+# system("clear")
+# oldr = (input.length - 0)
+# newr = (100 - 0)
+#
+# log = Array.new(($logs.last || []).length)
+# $logs.push(log)
+# log << ["new", "", 0, 0, i]
 
-$errors = 0
-$fork = 0
-$logs = []
-def evaluate(input, i, ran, acc, override = nil, depth = 0)
-  fail "you've delved too deep" if depth > 1
-  oldr = (input.length - 0)
-  newr = (100 - 0)
-  error = false
-  log = Array.new(($logs.last || []).length)
-  $logs.push(log)
-  log << ["new", "", 0, 0, i]
-  while i < input.length
-    val = ((ran.length * newr) / oldr)
-    # system("clear")
-    # print "| %d errors |#{"=" * val} (#{val})/(%d)" % [$errors, ran.length]
-    max = $logs.max_by { |x| x.length }.length
-    str = "[%3d]|%3s %1s%3d|%4d|%3s idx|"
-    # Array(0..max).each do |n|
-    #   $logs[0..5].each.with_index do |logger, log_idx|
-    #     print str % [log_idx.succ, logger[n]].flatten
-    #   rescue
-    #     print str % [log_idx.succ, "", "", 0, 0, ""].flatten
-    #   end
-    #   print "\n"
-    # end
-    line = input[i].match(/(nop|acc|jmp) (-|\+)(\d{1,3})/)
-    cmd = override || line[1]
-    sig = line[2]
-    num = line[3].to_i
+OPS = {
+  NOP: "nop",
+  JMP: "jmp",
+  ACC: "acc"
+}
 
-    # print "| %s %s%3d | %3d | %3s | " % [cmd, sig, num, acc, ran.include?(i) ? i.to_s.red : i]
-    log << [override ? cmd.green : cmd, sig, num, acc, ran.include?(i) ? i.to_s.red : i]
-    override = nil
-    if ran.include?(i)
-      puts "ERRRRRRRRRRRRRRRRRRRR"
-      $errors += 1
-      error = true
-      break
-    end
+class Instr
+  attr_accessor :op, :val, :add, :prv
+  # div by 6 = 109
 
-    case cmd
-    when "nop"
-      if depth < 1
-        $fork += 1
-        evaluate(input, i, ran.dup, acc.dup, "jmp", depth + 1)
-      end
-      next_i = i + 1
-    when "acc"
-      acc += (num * (sig == "-" ? -1 : 1))
-      next_i = i + 1
-    when "jmp"
-      if depth < 1
-        $fork += 1
-        evaluate(input, i, ran.dup, acc.dup, "nop", depth + 1)
-      end
-      next_i = i + (num * (sig == "-" ? -1 : 1))
-      # print "(%s%s) %s" % [sig, num, next_i]
+  def reset
+    self.op = prv
+  end
+
+  def swap_op
+    self.prv = op
+    if op == OPS[:JMP]
+      self.op = OPS[:NOP]
+      self
+    elsif op == OPS[:NOP]
+      self.op = OPS[:JMP]
+      self
     else
-      puts "err"
+      self
+    end
+  end
+
+  def to_s
+    "|%4s| %s %+4d |" % [add, prv ? op.green : op, val]
+  end
+  alias_method :inspect, :to_s
+end
+
+class VM
+  attr_accessor :acc, :program, :pointer, :trace
+
+  def initialize
+    @program = []
+    @acc = 0
+    @pointer = 0
+    @trace = []
+    @running = true
+  end
+
+  def terminated?
+    @running == false
+  end
+
+  def reset_swapped_instructions
+    program
+      .select { |instr| [OPS[:NOP], OPS[:JMP]].include?(instr.op) && !instr.prv.nil? }
+      .map!(&:reset)
+  end
+
+  def swap_next_instruction
+    program.find { |instr| [OPS[:NOP], OPS[:JMP]].include?(instr.op) && instr.prv.nil? }.swap_op
+  end
+
+  def paths
+    program.select { |instr| [OPS[:NOP], OPS[:JMP]].include?(instr.op) && instr.prv.nil? }.count
+  end
+
+  def repair
+    instruction = program[pointer]
+
+    if pointer >= program.length
+      puts self
+      exit
     end
 
-    ran << i
-    i = next_i
+    if trace.include?(instruction)
+      puts "F-------------------F".red
+      self.program = program.dup
+      self.pointer = 0
+      self.acc = 0
+      self.trace = []
+      reset_swapped_instructions
+      swap_next_instruction
+      return self
+    end
+
+    case instruction.op
+    when OPS[:NOP]
+      next_pointer = pointer + 1
+    when OPS[:ACC]
+      self.acc += instruction.val
+      next_pointer = pointer + 1
+    when OPS[:JMP]
+      next_pointer = pointer + instruction.val
+    else
+      puts "err, unknown Op(%s)" % instruction.op
+    end
+
+    trace << instruction
+    self.pointer = next_pointer
+    self
   end
-  unless error
-    puts "COMPLETE #{$fork}"
-    puts acc
+
+  def cycle
+    instruction = program[pointer]
+    if trace.include?(instruction)
+      @running = false
+      return self
+    end
+
+    case instruction.op
+    when OPS[:NOP]
+      next_pointer = pointer + 1
+    when OPS[:ACC]
+      self.acc += instruction.val
+      next_pointer = pointer + 1
+    when OPS[:JMP]
+      next_pointer = pointer + instruction.val
+    else
+      puts "err, unknown Op(%s)" % instruction.op
+    end
+
+    trace << instruction
+    self.pointer = next_pointer
+    self
   end
-  puts "FINISHED WITH ERR", acc
-  acc
+
+  def to_s
+    "VM(trc: %s, acc: %4s, ptr: %4s, pts: %d, itr: %s)" % [trace.length, acc, pointer, paths, program[pointer]]
+  end
+  alias_method :inspect, :to_s
+end
+
+def load(machine, input, i = 0)
+  while i < input.length
+    line = input[i].match(/(nop|acc|jmp) ((-|\+)\d{1,4})/)
+    cmd = line[1]
+    num = line[2].to_i
+
+    instr = Instr.new.tap do |inst|
+      inst.op = cmd
+      inst.val = num
+      inst.add = i + 1
+    end
+
+    machine.program << instr
+    i += 1
+  end
+  machine
 end
 
 puzzle "8.1" do |input|
-  acc = evaluate(input, 0, [], 0)
-  str = "[%3d]|%3s %1s%3d|%4d|%3s idx|"
-  max = $logs.max_by { |x| x.length }.length
-  Array(0..max).each do |n|
-    $logs.each.with_index do |logger, log_idx|
-      print str % [log_idx.succ, logger[n]].flatten
-    rescue
-      print " " * 28
-    end
-    print "\n"
+  machine = load(VM.new, input)
+  puts machine.program
+  until machine.terminated?
+    # puts machine.cycle
+    puts machine.repair
   end
-  puts $fork
-  puts acc
 end
