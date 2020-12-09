@@ -21,6 +21,8 @@ OPS = {
   ACC: "acc"
 }
 
+Ops = Struct.new(:jmp, :nop, :acc).new("jmp", "nop", "acc")
+
 class Instr
   attr_accessor :op, :val, :add, :prv
   # div by 6 = 109
@@ -42,10 +44,26 @@ class Instr
     end
   end
 
+  def display
+    # "(%3s)" % [prv ? hl(op) : op]
+    "(%4s)" % [prv ? hl(add) : add]
+  end
+
   def to_s
-    "|%4s| %s %+4d |" % [add, prv ? op.green : op, val]
+    "|%4s|%s %+4d|" % [add, prv ? hl(op.italic).italic : hl(op), val]
   end
   alias_method :inspect, :to_s
+
+  private
+
+  def hl(op)
+    case op
+    when Ops.nop then op.green
+    when Ops.jmp then op.blue
+    when Ops.acc then op.yellow
+    else; op
+    end
+  end
 end
 
 class VM
@@ -77,16 +95,48 @@ class VM
     program.select { |instr| [OPS[:NOP], OPS[:JMP]].include?(instr.op) && instr.prv.nil? }.count
   end
 
+  def display
+    require "pry"
+    require "tty-screen"
+    @pointers ||= []
+    @pointers.unshift(pointer.succ)
+    height, width = TTY::Screen.size
+    w = 6
+    print "\e[0;0H"
+    puts "-" * width
+    puts "ACC [%4s] | POINTER [%4s] | TRACE [%4s] | ATTEMPT [%3s]" % [acc, pointer, trace.length, @attempts]
+    puts "-" * width
+    program.each_slice(((width / w) / 2).floor).with_index do |instructions, idx|
+      break if idx > height
+      puts(instructions.map { |instr|
+        n = @pointers.index(instr.add)
+        if n && n < 30
+          next " ⏣ ".red(n / 6).bold + instr.display.purple.bold.italic + "\033[0m"
+        end
+        if instr == program[pointer]
+          " ⏣ ".red.bold + instr.display.purple.bold.italic + "\033[0m"
+        elsif trace.include?(instr)
+          "   " + instr.display.purple
+        else
+          "   " + instr.display
+        end
+      }.join(""))
+    end
+    puts "-" * width
+    sleep 0.01
+  end
+
   def repair
     instruction = program[pointer]
 
     if pointer >= program.length
-      puts self
-      exit
+      @running = false
+      return self
     end
 
     if trace.include?(instruction)
-      puts "F-------------------F".red
+      @attempts ||= 0
+      @attempts += 1
       self.program = program.dup
       self.pointer = 0
       self.acc = 0
@@ -163,9 +213,10 @@ end
 
 puzzle "8.1" do |input|
   machine = load(VM.new, input)
-  puts machine.program
+  system("clear")
   until machine.terminated?
     # puts machine.cycle
-    puts machine.repair
+    machine.display
+    machine.repair
   end
 end

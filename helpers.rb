@@ -46,22 +46,40 @@ end
 
 class String
   def bold
-    @_oldself = self if @oldself.nil?
     "\033[1m#{self}\033[0m"
   end
 
   def italic
-    @_oldself = self if @oldself.nil?
     "\033[3m#{self}\033[0m"
   end
 
-  def red
-    @_oldself = self if @oldself.nil?
-    "\033[31m#{self}\033[0m"
+  def red(level = 6)
+    intensity = case level % 6
+    when 6 then 196
+    when 5 then 160
+    when 4 then 124
+    when 3 then 88
+    when 2 then 52
+    when 1 then 16
+    else
+      0
+    end
+    "\033[38;5;#{intensity}m#{self}\033[0m"
   end
 
   def green
-    @_oldself = self if @oldself.nil?
     "\033[32m#{self}\033[0m"
+  end
+
+  def yellow
+    "\033[33m#{self}\033[0m"
+  end
+
+  def blue
+    "\033[34m#{self}\033[0m"
+  end
+
+  def purple
+    "\033[35m#{self}\033[0m"
   end
 end
