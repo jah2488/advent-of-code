@@ -10,7 +10,7 @@ end
 
 def puzzle(name, mode: :count, input: nil, answer: nil)
   dir = "0" + name.split(".").first
-  file_name = [dir, "input.txt"].join("/")
+  file_name = [dir[-2..-1], "input.txt"].join("/")
   puts "---- starting  #{name} ----"
   case mode
   when :collection then yield(input(file_name, input), [])
