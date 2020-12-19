@@ -88,12 +88,21 @@ def iterate(seats)
 end
 
 def display(seats)
+  str = ""
   (0..seats[:max_y]).each do |y|
     (0..seats[:max_x]).each do |x|
-      print seats[[y, x]]
+      case seats[[y, x]]
+      when SEAT then str += "⏣".purple
+      when PERSON then str += "⏣".yellow
+      when FLOOR then str += "⏣".green
+      else
+        "x"
+      end
     end
-    print "\n"
+    str += "\n"
   end
+  puts "\e[H\e[2J"
+  puts str
 end
 
 def fill(data)
@@ -111,14 +120,13 @@ end
 puzzle "11" do |input|
   data = input
   seats = fill(data)
-  display(seats)
   old_seats = seats
   new_seats = nil
   until old_seats == new_seats
     old_seats = new_seats unless new_seats.nil?
     new_seats = iterate(old_seats)
+    sleep 0.05
     display(new_seats)
   end
   puts new_seats.values.join.count(PERSON)
-  binding.pry
 end
