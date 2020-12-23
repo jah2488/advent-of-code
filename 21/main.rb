@@ -12,44 +12,28 @@ end
 
 puzzle '21' do |input|
   ingreds = []
-  allergs = []
-  i2a = Hash.new { |h, k| h[k] = Hash.new { |hh, kk| hh[kk] = 0 }}
-  a2i = Hash.new { |h, k| h[k] = Hash.new { |hh, kk| hh[kk] = 0 }}
-  foods = Hash.new { |h, k| h[k] = Hash.new { |hh, kk| hh[kk] = 0 }}
-  p = {}
-  d = {}
-  input.each.with_index do |food, idx|
+  a2i = Hash.new { |h, k| h[k] = []}
+  opts = {}
+  dets = {}
+  input.each do |food|
     match = food.match(/(.*) \(contains ([^)]*)/)
     ingredients = match[1].split(' ')
     allergens   = match[2].split(', ')
-    foods[allergens][:ingredients] = ingredients
-    ingredients.each do |i|
-      # foods[allergens][i] += 1
-    end
-    ingredients.each do |i|
-      ingreds << i
-      i2a[i][idx] = allergens
-      allergens.each do |a|
-        #i2a[i][a] += 1
-      end
-    end
-    allergens.each do |a|
-      allergs << a
-      a2i[a][idx] = ingredients
-      ingredients.each do |i|
-        #a2i[a][i] += 1
-      end
-    end
-    a2i.keys.flatten.uniq.count.times do
+
+    ingreds.concat(ingredients)
+    allergens.each { |a| a2i[a] << ingredients }
+
+    a2i.keys.count.times do
       a2i.each do |(allergen, values)|
-        p[allergen] = values.values.reduce(:&) - d.values.flatten
-        if p[allergen].length == 1
-          d[allergen] = p[allergen]
+        opts[allergen] = values.reduce(:&) - dets.values.flatten
+        if opts[allergen].length == 1
+          dets[allergen] = opts[allergen]
         end
       end
     end
-    puts ingreds.flatten.count { |i| !d.values.flatten.uniq.sort.include?(i) }
-    puts d.sort_by { |(k, v)| k }.map(&:last).join(",")
   end
+
+  puts ingreds.flatten.count { |i| !dets.values.flatten.uniq.sort.include?(i) }
+  puts dets.sort_by { |(k, v)| k }.map(&:last).join(",")
   binding.pry
 end
