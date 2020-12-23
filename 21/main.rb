@@ -19,16 +19,15 @@ puzzle '21' do |input|
     match = food.match(/(.*) \(contains ([^)]*)/)
     ingredients = match[1].split(' ')
     allergens   = match[2].split(', ')
-
     ingreds.concat(ingredients)
     allergens.each { |a| a2i[a] << ingredients }
+  end
 
-    a2i.keys.count.times do
-      a2i.each do |(allergen, values)|
-        opts[allergen] = values.reduce(:&) - dets.values.flatten
-        if opts[allergen].length == 1
-          dets[allergen] = opts[allergen]
-        end
+  a2i.keys.count.times do
+    a2i.each do |(allergen, values)|
+      opts[allergen] = values.reduce(:&) - dets.values.flatten
+      if opts[allergen].length == 1
+        dets[allergen] = opts[allergen]
       end
     end
   end
