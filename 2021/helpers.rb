@@ -50,8 +50,38 @@ end
 
 def clear
   print "\033[1J"
-  print "\033[1;1H"
 end
+
+def floor
+  "═"
+end
+def wall
+  "║"
+end
+def cross
+  "╬"
+end
+def corner_nw
+  "╔"
+end
+def corner_ne
+  "╗"
+end
+def corner_sw
+"╚"
+end
+def corner_se
+"╝"
+end
+def door_n
+  "╦"
+end
+def door_s
+  "╩"
+end
+
+"═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟  ╠	╡	╢	╣	╤	╥	╦	╧	╨	╩	╪	╫	╬"
+#╭	╮	╯	╰	╱	╲	╳	╴	╵	╶	╷	╸	╹	╺	╻	╼	╽	╾	╿	█	░	▒	▓	□	■	▲	▼	◆	◇	●	○	★	☆	♀	♂	♪	♫	♬	〓	〡	〢	〣	〤	〥	〦	〧	〨	〩	㊣	㊤	㊥	㊦	㊧	㊨	㊩	㊪	㊫	㊬	㊭	㊮	㊯	㊰	㊱	㊲	㊳	㊴	㊵	㊶	㊷	㊸	㊹	㊺	㊻	㊼	㊽	㊾	㊿	㋀	㋁	㋂	㋃	㋄	㋅	㋆	㋇	㋈	㋉	㋊	㋋	㋌	㋍	㋎	㋏	㋐	㋑	㋒	㋓	㋔	㋕	㋖	㋗	㋘	㋙	㋚	㋛	㋜	㋝	㋞	㋟	㋠	㋡	㋢	㋣	㋤	㋥	㋦	㋧	㋨	㋩	㋪	㋫	㋬	㋭	㋮	㋯	㋰	㋱	㋲	㋳"
 
 class String
   def onoff(state, on, off)
@@ -71,6 +101,10 @@ class String
   end
   def at(x, y)
     "\033[#{x};#{y}H#{self}"
+  end
+
+  def bg_yellow
+    "\033[43;1m#{self}\033[0m"
   end
 
   def bold
