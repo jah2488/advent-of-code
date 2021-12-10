@@ -1,4 +1,4 @@
-require_relative '../helpers.rb'
+require_relative '../../helpers.rb'
 
 puzzle '1.1', mode: :find, answer: 1016131 do |input, found|
   input.each do |n|

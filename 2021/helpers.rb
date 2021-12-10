@@ -13,10 +13,14 @@ def puzzle(name, mode: :count, input: nil, answer: nil)
   file_name = [dir[-2..-1], "input.txt"].join("/")
   puts "---- starting  #{name} ----"
   case mode
+  when :test
+    puts "hii"
+    binding.pry
   when :collection then yield(input(file_name, input), [])
   when :count then yield(input(file_name, input), 0)
   when :find then yield(input(file_name, input), false)
-  else; yield(input(file_name))
+  when nil then yield(input(file_name))
+  else; yield(mode)
   end
   puts answer
   puts "---- finishing #{name} ----"
@@ -44,13 +48,41 @@ def debug_table(idx, **cols)
   end
 end
 
+def clear
+  print "\033[1J"
+  print "\033[1;1H"
+end
+
 class String
+  def onoff(state, on, off)
+    if state.respond_to?(:call)
+      if state.call(self)
+        self.public_send(on)
+      else
+        self.public_send(off)
+      end
+    else
+      if state
+        self.public_send(on)
+      else
+        self.public_send(off)
+      end
+    end
+  end
+  def at(x, y)
+    "\033[#{x};#{y}H#{self}"
+  end
+
   def bold
     "\033[1m#{self}\033[0m"
   end
 
   def italic
     "\033[3m#{self}\033[0m"
+  end
+
+  def black
+    "\033[30m#{self}\033[0m"
   end
 
   def red(level = 1)
