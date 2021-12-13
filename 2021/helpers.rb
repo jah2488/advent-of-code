@@ -1,5 +1,7 @@
 require "pry"
 
+$log = []
+
 def input(file_name, raw = false)
   if raw
     File.open(file_name).read
@@ -55,29 +57,42 @@ end
 def floor
   "═"
 end
+
 def wall
   "║"
 end
+
 def cross
   "╬"
 end
+
 def corner_nw
   "╔"
 end
+
 def corner_ne
   "╗"
 end
+
 def corner_sw
 "╚"
 end
+
 def corner_se
 "╝"
 end
+
 def door_n
   "╦"
 end
+
 def door_s
   "╩"
+end
+
+def log(msg)
+  $log ||= []
+  $log << msg
 end
 
 "═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟  ╠	╡	╢	╣	╤	╥	╦	╧	╨	╩	╪	╫	╬"
@@ -107,6 +122,40 @@ class String
     "\033[43;1m#{self}\033[0m"
   end
 
+  def bold
+    "\033[1m#{self}\033[0m"
+  end
+
+  def italic
+    "\033[3m#{self}\033[0m"
+  end
+
+  def black
+    "\033[30m#{self}\033[0m"
+  end
+
+  def red(level = 1)
+    "\033[31m#{self}\033[0m"
+  end
+
+  def green
+    "\033[32m#{self}\033[0m"
+  end
+
+  def yellow
+    "\033[33m#{self}\033[0m"
+  end
+
+  def blue
+    "\033[34m#{self}\033[0m"
+  end
+
+  def purple
+    "\033[35m#{self}\033[0m"
+  end
+end
+
+class Integer
   def bold
     "\033[1m#{self}\033[0m"
   end
