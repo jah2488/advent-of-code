@@ -1,5 +1,3 @@
-require_relative '../helpers'
-
 def test
   [
     "be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",

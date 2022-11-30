@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require_relative '../utils/helpers'
+require_relative '../utils/colors'
+
+file = ARGV[0] || ENV['DAY'] || Time.now.strftime('%d')
+year = ARGV[1] || ENV['YEAR'] || Time.now.year
+$_year = year
+
+puts "Loading '#{year}/#{file}'"
+
+require_relative "../#{year}/#{file}/main"

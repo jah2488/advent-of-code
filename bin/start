@@ -1,0 +1,100 @@
+#!/usr/bin/env ruby
+
+$stdout.sync = true
+
+require 'io/console'
+require 'timeout'
+
+puts "Loading..."
+require_relative '../utils/helpers'
+require_relative '../utils/colors'
+
+UP    = "\e[A"
+RIGHT = "\e[C"
+DOWN  = "\e[B"
+LEFT  = "\e[D"
+
+file = ARGV[0] || ENV['DAY'] || Time.now.strftime('%d')
+year = ARGV[1] || ENV['YEAR'] || Time.now.year
+$_year = year
+
+cursor = file.to_i
+$last_input = nil
+
+
+def readkey
+  c = ''
+  result = ''
+  $stdin.raw do |stdin|
+    c = stdin.getc
+    result << c
+    if c == "\e"
+      begin
+        while (c = Timeout::timeout(0.0001) { stdin.getc })
+          result << c
+        end
+      rescue Timeout::Error
+      end
+    end
+  end
+  result
+end
+
+frame_no = 0
+system('clear')
+clear
+while $last_input != "q" do
+  frame_no += 1
+  rainbow("Advent of Code #{year}\n", frame_no)
+  puts "-" * 80
+
+  100.times do |n|
+    clear
+    h_meter(n, 100)
+    sleep 0.01
+  end
+
+  table([
+    ["Day", "Part 1", "Part 2"], 
+    ["1", "Correct", "Incomplete"],
+    ["2", "Correct", "Correct"],
+    ["3", "Correct", "Incorrect"],
+    ["4", "Correct", "Correct"],
+    ["5", "Incomplete", "Correct"],
+    ["6", "Correct", "Err"],
+  ], zebra: true)
+
+  # puts box 6, 4
+  at x:6, y:4 do
+    puts smooth_box(5, 3)
+  end
+  puts smooth_box(5, 3)
+
+  1..10.times do |n|
+    # puts "shadow #{n}".shadow(n)
+  end
+
+
+  days = Dir["#{year}/*"].map { |x| x.split("/").last }.sort
+  days.each_slice(5) do |slice|
+    slice.each do |day|
+      if day == cursor.to_s.rjust(2, "0")
+        print "#{day}".green.bold
+      else
+        print day
+      end
+      print " "
+    end
+    puts
+  end
+  puts "[enter] to run; [up/down] to change day; [q] to quit"
+  $last_input = readkey
+  clear
+  puts "".at(0,0)
+  cursor -= 1 if [UP, LEFT].include?($last_input) if (cursor - 1) > 0
+  cursor += 1 if [DOWN, RIGHT].include?($last_input) if (cursor + 1) <= days.length
+
+  if $last_input == "\r"
+    require_relative "../#{year}/#{cursor.to_s.rjust(2, "0")}/main"
+  end
+end
