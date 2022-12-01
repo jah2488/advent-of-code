@@ -32,7 +32,7 @@ end
 range = 0..255
 
 range.each do |n|
-  print "\033[38;5;#{n * 10}m|#{n * 10}|\033[0m" #Print color on text
+  # print "\033[38;5;#{n * 10}m|#{n * 10}|\033[0m" #Print color on text
   #print "\033[48;5;#{n}m  #{n}  \033[0m" #Print color on background
 end
 

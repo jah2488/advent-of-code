@@ -3,11 +3,9 @@ require "pry"
 $log = []
 
 def input(file_name, raw = false)
-  if raw
-    File.open("#{$_year}/#{file_name}").read
-  else
-    File.open("#{$_year}/#{file_name}").readlines
-  end
+  file = File.open("#{$_year}/#{file_name}")
+  return file.read if raw
+  file.readlines
 end
 
 def puzzle(name, mode: :count, input: nil, answer: nil)

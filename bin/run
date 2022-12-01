@@ -9,4 +9,11 @@ $_year = year
 
 puts "Loading '#{year}/#{file}'"
 
-require_relative "../#{year}/#{file}/main"
+begin
+  require_relative "../#{year}/#{file}/main"
+rescue LoadError => e
+  puts "Creating '#{year}/#{file}'"
+  system("mkdir -p #{year}/#{file}")
+  system("touch #{year}/#{file}/main.rb")
+  system("touch #{year}/#{file}/input.txt")
+end

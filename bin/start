@@ -47,34 +47,6 @@ while $last_input != "q" do
   frame_no += 1
   rainbow("Advent of Code #{year}\n", frame_no)
   puts "-" * 80
-
-  100.times do |n|
-    clear
-    h_meter(n, 100)
-    sleep 0.01
-  end
-
-  table([
-    ["Day", "Part 1", "Part 2"], 
-    ["1", "Correct", "Incomplete"],
-    ["2", "Correct", "Correct"],
-    ["3", "Correct", "Incorrect"],
-    ["4", "Correct", "Correct"],
-    ["5", "Incomplete", "Correct"],
-    ["6", "Correct", "Err"],
-  ], zebra: true)
-
-  # puts box 6, 4
-  at x:6, y:4 do
-    puts smooth_box(5, 3)
-  end
-  puts smooth_box(5, 3)
-
-  1..10.times do |n|
-    # puts "shadow #{n}".shadow(n)
-  end
-
-
   days = Dir["#{year}/*"].map { |x| x.split("/").last }.sort
   days.each_slice(5) do |slice|
     slice.each do |day|
