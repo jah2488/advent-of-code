@@ -1,6 +1,9 @@
 require "pry"
 
 $log = []
+$results = [
+    ["Puzzle", "Output", "Answer", "Calculation Time"],
+]
 
 def input(file_name, raw = false)
   file = File.open("#{$_year}/#{file_name}")
@@ -11,23 +14,37 @@ end
 def puzzle(name, mode: :count, input: nil, answer: nil)
   dir = "0" + name.split(".").first
   file_name = [dir[-2..-1], "input.txt"].join("/")
-  puts "---- starting  #{name} ----"
+  start_time = Time.now
+  output = nil
+  puts "---- starting  #{name} answer: #{answer} ----"
   case mode
   when :test
     puts "hii"
     binding.pry
-  when :collection then yield(input(file_name, input), [])
-  when :count      then yield(input(file_name, input), 0)
-  when :find       then yield(input(file_name, input), false)
-  when nil         then yield(input(file_name))
+  when :collection then output = yield(input(file_name, input), [])
+  when :count      then output = yield(input(file_name, input), 0)
+  when :find       then output = yield(input(file_name, input), false)
+  when nil         then output = yield(input(file_name))
   else
     puts "Unknown mode: '#{mode}'"
-    yield(mode)
+    output = yield(mode)
   end
   puts answer
-  puts "---- finishing #{name} ----"
+  if output == answer
+    puts "---- output: ★ #{output.to_s.bold}".green + " ★ ----".green
+  else
+   puts "---- output: ◇ #{output.to_s.bold}".red + " ◇ ----".red
+  end
+  puts "---- finishing #{name} in: #{Time.now - start_time}s  ----"
+  $results << [name, output, answer, Time.now - start_time]
   puts
 end
+
+at_exit {
+  table($results, active_row: nil) do |row|
+    row[1] == row[2]
+  end
+}
 
 def copy(o)
   if o.respond_to?(:map)
@@ -96,21 +113,39 @@ def table(data, header: true, zebra: false, active_row: 1, cursor: ">")
   if active_row
     data = data.map.with_index { |row, idx| row.unshift(idx.zero? ? "#" : idx == active_row ? cursor : " ") }
   end
-  col_widths = data.map { |row| row.map(&:to_s).map(&:length) }.transpose.map(&:max)
+  col_widths = data.map { |row| row.map(&:to_s)
+                   .map(&:length) }
+                   .transpose
+                   .map(&:max)
   puts corner_nw + col_widths.map { |w| floor * (w + 2) }.join(door_n) + corner_ne
   data.each.with_index do |row, row_idx|
     if row_idx.zero?
       puts wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ").bold }.join(wall) + wall
       puts wall + row.map.with_index { |cell, idx| floor.to_s.rjust(col_widths[idx] + 1, floor).ljust(col_widths[idx] + 2, floor).bold }.join(cross) + wall
     else
+      show_failure = false
+      show_success = false
+      if block_given?
+        highlight = yield(row)
+        show_failure = highlight == false
+        show_success = highlight == true
+      end
       if row_idx == active_row
         print "\033[48;2;#{125};#{125};#{125}m" 
         puts wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ") }.join(wall) + wall
         print "\033[0m"
       elsif row_idx.even? && zebra
         print "\033[48;2;#{25};#{25};#{25}m" 
-        puts wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ") }.join(wall) + wall
-        print "\033[0m"
+        print wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ") }.join(wall) + wall
+        puts "\033[0m"
+      elsif show_success
+        print "\033[48;2;#{125};#{255};#{125}m" 
+        print wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ") }.join(wall) + wall
+        puts "\033[0m"
+      elsif show_failure
+        print "\033[48;2;#{255};#{125};#{125}m" 
+        print wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ") }.join(wall) + wall
+        puts "\033[0m"
       else
         puts wall + row.map.with_index { |cell, idx| cell.to_s.rjust(col_widths[idx] + 1, " ").ljust(col_widths[idx] + 2, " ") }.join(wall) + wall
       end
