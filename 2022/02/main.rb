@@ -1,3 +1,5 @@
+# typed: true
+
 def test
   [
     "A Y",
@@ -20,9 +22,9 @@ end
 
 def score(a, b)
   case [a, b]
-  when [:rock, :paper], [:paper, :scissors], [:scissors, :rock] then win  + move_mod(b)
-  when [:rock, :rock], [:paper, :paper], [:scissors, :scissors] then draw + move_mod(b)
-  when [:rock, :scissors], [:paper, :rock], [:scissors, :paper] then lose + move_mod(b)
+  when [:rock,    :paper], [:paper, :scissors], [:scissors,     :rock] then win  + move_mod(b)
+  when [:rock,     :rock], [:paper,    :paper], [:scissors, :scissors] then draw + move_mod(b)
+  when [:rock, :scissors], [:paper,     :rock], [:scissors,    :paper] then lose + move_mod(b)
   else
     raise "impossible #{a} #{b}"
   end
