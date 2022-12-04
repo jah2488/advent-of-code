@@ -13,13 +13,14 @@ puts "Loading '#{year}/#{file}'"
 begin
   require_relative "../#{year}/#{file}/main"
 rescue LoadError => e
+  raise "AOC_SESSION required to fetch details" unless ENV['AOC_SESSION']
   puts "Creating '#{year}/#{file}'"
   system("mkdir -p #{year}/#{file}")
   system("touch #{year}/#{file}/main.rb")
   system("touch #{year}/#{file}/input.txt")
 
   `curl --header "Cookie: session=#{ENV['AOC_SESSION']}" https://adventofcode.com/#{year}/day/#{file.to_i.to_s}/input > #{year}/#{file}/input.txt`
-  page = `curl --header "Cookie: session=#{ENV['AOC_SESSION']}" https://adventofcode.com/#{year}/day/#{file.to_i.to_s}`# > #{year}/#{file}/instructions.txt`
+  page = `curl --header "Cookie: session=#{ENV['AOC_SESSION']}" https://adventofcode.com/#{year}/day/#{file.to_i.to_s}`
 
   dirs_re = /day-desc">(.*)<\/article>/m
 
@@ -29,4 +30,5 @@ rescue LoadError => e
   test_data = page.scan(/<pre><code>(.*)<\/code><\/pre>/m).first
   puzzle_no = file.to_i
   File.write("#{year}/#{file}/solution.rb", ERB.new(File.read("utils/template.rb.erb")).result(binding), mode: "w")
+  `open https://adventofcode.com/#{year}/day/#{file.to_i.to_s}`
  end
