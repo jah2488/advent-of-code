@@ -2,14 +2,14 @@ def test
   <%= test_data %>
 end
 
-puzzle <%= "#{puzzle_no}.1" %>, mode: :count, answer: :unknown do |input, total|
-  input.each_line do |line|
+puzzle '<%= "#{puzzle_no}.1" %>', mode: :count, answer: nil do |input, total|
+  input.each do |line|
 
   end
 end
 
-puzzle <%= "#{puzzle_no}.2" %>, mode: :count, answer: :unknown do |input, total|
-  input.each_line do |line|
+xpuzzle '<%= "#{puzzle_no}.2" %>', mode: :count, answer: nil do |input, total|
+  input.each do |line|
 
   end
 end

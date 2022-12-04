@@ -29,6 +29,6 @@ rescue LoadError => e
 
   test_data = page.scan(/<pre><code>(.*)<\/code><\/pre>/m).first
   puzzle_no = file.to_i
-  File.write("#{year}/#{file}/solution.rb", ERB.new(File.read("utils/template.rb.erb")).result(binding), mode: "w")
+  File.write("#{year}/#{file}/main.rb", ERB.new(File.read("utils/template.rb.erb")).result(binding), mode: "w")
   `open https://adventofcode.com/#{year}/day/#{file.to_i.to_s}`
  end

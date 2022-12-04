@@ -11,6 +11,13 @@ def input(file_name, raw = false)
   file.readlines
 end
 
+def test
+  puts '--- TEST DATA BEING USED ---'.italic.yellow
+  yield
+end
+
+def xpuzzle(name, mode: nil, input: nil, answer: nil) = nil
+
 def puzzle(name, mode: :count, input: nil, answer: nil)
   dir = "0" + name.split(".").first
   file_name = [dir[-2..-1], "input.txt"].join("/")
