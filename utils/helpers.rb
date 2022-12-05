@@ -257,6 +257,10 @@ class String
   def at(x, y)
     "\033[#{x};#{y}H#{self}"
   end
+  
+  def col(n)
+    "\033[#{n}G#{self}"
+  end
 
   def shadow(level = 1)
     case level
