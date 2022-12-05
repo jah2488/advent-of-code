@@ -1,15 +1,16 @@
 def test
-  <%= test_data %>
+  puts "--- Test Data In Use ---".italic.yellow
+  <%= test_data.first %>.split("\n")
 end
 
 puzzle '<%= "#{puzzle_no}.1" %>', mode: :count, answer: nil do |input, total|
-  input.each do |line|
+  test.each do |line|
 
   end
 end
 
 xpuzzle '<%= "#{puzzle_no}.2" %>', mode: :count, answer: nil do |input, total|
-  input.each do |line|
+  test.each do |line|
 
   end
 end

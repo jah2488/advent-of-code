@@ -16,7 +16,9 @@ def test
   yield
 end
 
-def xpuzzle(name, mode: nil, input: nil, answer: nil) = nil
+def xpuzzle(name, mode: nil, input: nil, answer: nil)
+  puts "--- skipping #{name} ---".italic.yellow
+end
 
 def puzzle(name, mode: :count, input: nil, answer: nil)
   dir = "0" + name.split(".").first
