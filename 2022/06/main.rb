@@ -44,10 +44,13 @@ def fast_solve(input, size)
   while n < input.length
     char = input[n]
     chars[char] = chars[char].to_i + 1
-    return n if chars.values.sum == size && chars.length == size
+
+    return n if chars.length == size && chars.values.sum == size
+
     if chars.values.sum > size || chars[char] > 1
       chars = { char => 1}
     end
+
     n += 1
   end
 end
@@ -55,7 +58,7 @@ end
 
 puzzle '6.1', mode: :count, input: :raw, answer: 1794 do |input, first_char|
   #solve(input, 4)
-  fast_solve(input, 4) + 1
+  fast_solve(input, 4) + 1 # Why is this needed, the biggest mystery yet to be solved 🧐
 end
 
 puzzle '6.2', mode: :count, input: :raw, answer: 2851 do |input, first_char|
