@@ -24,7 +24,12 @@ rescue LoadError => e
 
   dirs_re = /day-desc">(.*)<\/article>/m
 
-  instructions = page.scan(dirs_re).first.first.gsub("</p>", "\n").gsub("<li>", "\t- ").gsub(/<\/?code>/, "`").gsub("</h2>", "\n\n").gsub(/<\/?(em|li|ul|pre|p|span|h2)>/, "")
+  instructions = page.scan(dirs_re).first.first
+    .gsub("</p>", "\n")
+    .gsub("<li>", "\t- ")
+    .gsub(/<\/?code>/, "```\n")
+    .gsub("</h2>", "\n\n")
+    .gsub(/<\/?(em|li|ul|pre|p|span|h2)>/, "")
   File.write("#{year}/#{file}/instructions.txt", instructions)
 
   test_data = page.scan(/<pre><code>(.*)<\/code><\/pre>/m).first

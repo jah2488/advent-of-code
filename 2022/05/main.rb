@@ -102,10 +102,10 @@ def solve(data, crane_version: 9000)
   stacks.sort.map { |(_, v)| Array(v).first }.join
 end
 
-puzzle '5.1', mode: :count, answer: "QNHWJVJZW" do |input, total|
+xpuzzle '5.1', mode: :count, answer: "QNHWJVJZW" do |input, total|
   solve(input, crane_version: 9000)
 end
 
-xpuzzle '5.2', mode: :count, answer: "BPCZJLFJW" do |input, total|
+puzzle '5.2', mode: :count, answer: "BPCZJLFJW" do |input, total|
   solve(input, crane_version: 9001)
 end
