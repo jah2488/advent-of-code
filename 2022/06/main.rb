@@ -1,15 +1,15 @@
 def test
-  puts "--- Test Data In Use ---".italic.yellow
+  warn "Test Data In Use"
   "mjqjpqmgbljsphdztnvjfqwrcgsmlb" #=> 7, 19
 end
 
 def test2
-  puts "--- Test Data In Use ---".italic.yellow
+  warn "Test Data In Use"
   "bvwbjplbgvbhsrlpgdmjqwftvncz" #=> 5, 23
 end
 
 def test3
-  puts "--- Test Data In Use ---".italic.yellow
+  warn "Test Data In Use"
   "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg" #=> 10, 29
 end
 
@@ -20,47 +20,30 @@ class Win
   end
 
   def add(char)
-    # puts "Duplicate detected".red.italic if @storage.include?(char)
-    if @storage.size == @size
-      @storage.shift
-    end
+    @storage.shift if @storage.size == @size
     @storage << char
+    self
   end
 
   def uniq?
     return false if @storage.size < @size
     @storage.uniq.size == @storage.size
   end
+end
 
-  def to_s
-    @storage.inspect
+def solve(input, size)
+  win = Win.new(size)
+  input.chars.each_with_index do |char, idx|
+    if win.add(char).uniq?
+      return idx + 1
+    end
   end
 end
 
-puzzle '6.1', mode: :count, input: :raw, answer: 1794 do |input, total|
-  win = Win.new
-  first_char = 0
-  input.chars.each_with_index do |char, idx|
-    win.add(char)
-    if win.uniq?
-     # puts "Win: #{win}, at: #{idx + 1}" 
-      first_char = idx + 1
-      break
-    end
-  end
-  first_char
+puzzle '6.1', mode: :count, input: :raw, answer: 1794 do |input, first_char|
+  solve(input, 4)
 end
 
-puzzle '6.2', mode: :count, input: :raw, answer: 2851 do |input, total|
-  win = Win.new(14)
-  first_char = 0
-  input.chars.each_with_index do |char, idx|
-    win.add(char)
-    if win.uniq?
-     # puts "Win: #{win}, at: #{idx + 1}" 
-      first_char = idx + 1
-      break
-    end
-  end
-  first_char
+puzzle '6.2', mode: :count, input: :raw, answer: 2851 do |input, first_char|
+  solve(input, 14)
 end

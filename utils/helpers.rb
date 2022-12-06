@@ -11,6 +11,10 @@ def input(file_name, raw = false)
   file.readlines
 end
 
+def warn(*msg)
+  puts "--- WARNING: #{msg.join(" ")} ---".italic.yellow
+end
+
 def test
   puts '--- TEST DATA BEING USED ---'.italic.yellow
   yield
