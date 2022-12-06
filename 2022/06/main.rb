@@ -34,16 +34,31 @@ end
 def solve(input, size)
   win = Win.new(size)
   input.chars.each_with_index do |char, idx|
-    if win.add(char).uniq?
-      return idx + 1
-    end
+    return idx + 1 if win.add(char).uniq?
   end
 end
 
+def fast_solve(input, size)
+  n = 0
+  chars = {}
+  while n < input.length
+    char = input[n]
+    chars[char] = chars[char].to_i + 1
+    return n if chars.values.sum == size && chars.length == size
+    if chars.values.sum > size || chars[char] > 1
+      chars = { char => 1}
+    end
+    n += 1
+  end
+end
+
+
 puzzle '6.1', mode: :count, input: :raw, answer: 1794 do |input, first_char|
-  solve(input, 4)
+  #solve(input, 4)
+  fast_solve(input, 4) + 1
 end
 
 puzzle '6.2', mode: :count, input: :raw, answer: 2851 do |input, first_char|
-  solve(input, 14)
+  #solve(input, 14)
+  fast_solve(input, 14)
 end

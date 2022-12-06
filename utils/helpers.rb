@@ -42,7 +42,6 @@ def puzzle(name, mode: :count, input: nil, answer: nil)
     puts "Unknown mode: '#{mode}'"
     output = yield(mode)
   end
-  puts answer
   if output == answer
     puts "---- output: ★ #{output.to_s.bold}".green + " ★ ----".green
   else
@@ -113,11 +112,16 @@ def at(x:, y:)
   print "\033[u" #restore cursor position
 end
 
+def clamp(n, min)
+  return min if n < min
+  n
+end
+
 
 def box(width, height)
   puts cnw + smooth_floor * (width - 2) + cne
   (height - 2).times do
-    puts smooth_wall + " " * (width - 2) + smooth_wall
+    puts smooth_wall + " " * (clamp(width/2 - 2, 1)) + (block_given? ? yield : " ") +  " " * (clamp(width/2 - 2, 1)) + smooth_wall
   end
   puts csw + smooth_floor * (width - 2) + cse
 end
