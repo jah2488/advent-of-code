@@ -29,56 +29,40 @@ end
 
 def du(dir)
   dir.reduce(0) do |sum, (name, contents)|
-    next sum if name == :_meta
-    if contents.is_a?(Hash)
-      sum += du(contents)
-    else
-      sum += contents.to_i
-    end
+    return sum += du(contents) if contents.is_a?(Hash)
+    sum += contents.to_i
   end
 end
 
-def find(dir, coll = [], &block)
+def find(dir, col = [], &block)
   dir.map do |name, contents|
-    if contents.is_a?(Hash) && name != :_meta
-      find(contents, coll, &block) 
-      if block.call(contents) 
-        coll.push(contents)
-      end
+    if contents.is_a?(Hash)
+      find(contents, col, &block) 
+      col.push(contents) if block.call(contents) 
     end
   end
-  coll
+  col
 end
 
 TOTAL_DISK_SPACE  = 70_000_000
 NEEDED_DISK_SPACE = 30_000_000
 MAX = 100_000
 
-xpuzzle '7.1', mode: :count, answer: 1583951 do |input, total|
+puzzle '7.1', mode: :count, answer: 1583951 do |input, total|
   dir_stack = []
   fs = { "/" => {}}
   input.each do |line|
-    print dir_stack.join("/").bold + " "
-    puts line.bold.red
-    puts fs.inspect.green
-
-    if line.scan(/\$ ls/).first
-    end
 
     if line.scan(/dir (.+)/).first
       cwd = fs.dig(*dir_stack)
       dir = line.scan(/dir (.+)/).first.first
-      puts "--- adding dir '#{dir}' to #{dir_stack.last} ---".yellow
       cwd[dir] ||= {}
     end
 
     if line.scan(/(\d+) (.+)/).first
       cwd = fs.dig(*dir_stack)
       file = line.scan(/(\d+) (.+)/).first
-      puts file.inspect
-      cwd[:_meta] ||= {}
-      cwd[:_meta][:size] ||= 0
-      cwd[:_meta][:size] += file[0].to_i
+      cwd[:_name] ||= dir_stack.last
       cwd[file[1]] ||= file[0]
     end
 
@@ -90,19 +74,14 @@ xpuzzle '7.1', mode: :count, answer: 1583951 do |input, total|
         dir_stack << dir
       end
     end
-    puts "---\n".red
   end
-  puts fs
-  find(fs["/"]).reduce(0) { |sum, dir| sum += du(dir) }
+  find(fs["/"]) { |c| du(c) < MAX }.reduce(0) { |sum, dir| sum += du(dir) }
 end
 
 puzzle '7.2', mode: :count, answer: 214171 do |input, total|
   dir_stack = []
   fs = { "/" => {}}
   input.each do |line|
-    if line.scan(/\$ ls/).first
-    end
-
     if line.scan(/dir (.+)/).first
       cwd = fs.dig(*dir_stack)
       dir = line.scan(/dir (.+)/).first.first
@@ -112,10 +91,7 @@ puzzle '7.2', mode: :count, answer: 214171 do |input, total|
     if line.scan(/(\d+) (.+)/).first
       cwd = fs.dig(*dir_stack)
       file = line.scan(/(\d+) (.+)/).first
-      cwd[:_meta] ||= {}
-      cwd[:_meta][:size] ||= 0
-      cwd[:_meta][:size] += file[0].to_i
-      cwd[:_meta][:name] ||= dir_stack.last
+      cwd[:_name] ||= dir_stack.last
       cwd[file[1]] ||= file[0]
     end
 
@@ -127,13 +103,7 @@ puzzle '7.2', mode: :count, answer: 214171 do |input, total|
         dir_stack << dir
       end
     end
-    puts "---\n".red
   end
-  puts fs
-  puts "Total Disk Space: #{TOTAL_DISK_SPACE}"
-  puts "Used Disk Space: #{du(fs["/"])}"
-  warn "---"
-  puts "Disk Space To Free: #{NEEDED_DISK_SPACE - (TOTAL_DISK_SPACE - du(fs["/"]))}"
   needed = NEEDED_DISK_SPACE - (TOTAL_DISK_SPACE - du(fs["/"]))
-  find(fs) { |contents| du(contents) > needed }.sort_by { |dir| du(dir) }.first
+  du(find(fs) { |contents| du(contents) > needed }.sort_by { |dir| du(dir) }.first)
 end
