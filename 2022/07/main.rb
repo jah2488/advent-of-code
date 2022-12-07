@@ -38,20 +38,26 @@ def du(dir)
   end
 end
 
-def find(dir)
-  dir.flat_map do |dir_name, dir_contents|
-    Array(if dir_name != :_meta && dir_contents.is_a?(Hash)
-      find(dir_contents)
-    end) + Array(dir.select do |name, contents|
-      name != :_meta && contents.is_a?(Hash) && du(contents) <= 100_000
-    end)
-  end.compact
+def find(dir, coll = [], &block)
+  dir.map do |name, contents|
+    if contents.is_a?(Hash) && name != :_meta
+      find(contents, coll, &block) 
+      if block.call(contents) 
+        coll.push(contents)
+      end
+    end
+  end
+  coll
 end
 
-puzzle '7.1', mode: :count, answer: nil do |input, total|
+TOTAL_DISK_SPACE  = 70_000_000
+NEEDED_DISK_SPACE = 30_000_000
+MAX = 100_000
+
+xpuzzle '7.1', mode: :count, answer: 1583951 do |input, total|
   dir_stack = []
   fs = { "/" => {}}
-  test.each do |line|
+  input.each do |line|
     print dir_stack.join("/").bold + " "
     puts line.bold.red
     puts fs.inspect.green
@@ -87,12 +93,47 @@ puzzle '7.1', mode: :count, answer: nil do |input, total|
     puts "---\n".red
   end
   puts fs
-  binding.pry
-  nil
+  find(fs["/"]).reduce(0) { |sum, dir| sum += du(dir) }
 end
 
-xpuzzle '7.2', mode: :count, answer: nil do |input, total|
-  test.each do |line|
+puzzle '7.2', mode: :count, answer: 214171 do |input, total|
+  dir_stack = []
+  fs = { "/" => {}}
+  input.each do |line|
+    if line.scan(/\$ ls/).first
+    end
 
+    if line.scan(/dir (.+)/).first
+      cwd = fs.dig(*dir_stack)
+      dir = line.scan(/dir (.+)/).first.first
+      cwd[dir] ||= {}
+    end
+
+    if line.scan(/(\d+) (.+)/).first
+      cwd = fs.dig(*dir_stack)
+      file = line.scan(/(\d+) (.+)/).first
+      cwd[:_meta] ||= {}
+      cwd[:_meta][:size] ||= 0
+      cwd[:_meta][:size] += file[0].to_i
+      cwd[:_meta][:name] ||= dir_stack.last
+      cwd[file[1]] ||= file[0]
+    end
+
+    if line.scan(/\$ cd (.+)/).first
+      dir = line.scan(/\$ cd (.+)/).first.first
+      if dir == ".."
+        dir_stack.pop
+      else
+        dir_stack << dir
+      end
+    end
+    puts "---\n".red
   end
+  puts fs
+  puts "Total Disk Space: #{TOTAL_DISK_SPACE}"
+  puts "Used Disk Space: #{du(fs["/"])}"
+  warn "---"
+  puts "Disk Space To Free: #{NEEDED_DISK_SPACE - (TOTAL_DISK_SPACE - du(fs["/"]))}"
+  needed = NEEDED_DISK_SPACE - (TOTAL_DISK_SPACE - du(fs["/"]))
+  find(fs) { |contents| du(contents) > needed }.sort_by { |dir| du(dir) }.first
 end
