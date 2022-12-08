@@ -112,8 +112,9 @@ def at(x:, y:)
   print "\033[u" #restore cursor position
 end
 
-def clamp(n, min)
+def clamp(n, min, max = Float::INFINITY)
   return min if n < min
+  return max if n > max
   n
 end
 

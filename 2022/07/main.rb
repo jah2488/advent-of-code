@@ -29,19 +29,22 @@ end
 
 def du(dir)
   dir.reduce(0) do |sum, (name, contents)|
-    return sum += du(contents) if contents.is_a?(Hash)
-    sum += contents.to_i
+    if contents.is_a?(Hash)
+      sum += du(contents)
+    else
+      sum += contents.to_i
+    end
   end
 end
 
-def find(dir, col = [], &block)
+def find(dir, coll = [], &block)
   dir.map do |name, contents|
     if contents.is_a?(Hash)
-      find(contents, col, &block) 
-      col.push(contents) if block.call(contents) 
+      find(contents, coll, &block) 
+      coll.push(contents) if block.call(contents) 
     end
   end
-  col
+  coll
 end
 
 TOTAL_DISK_SPACE  = 70_000_000
@@ -52,14 +55,17 @@ puzzle '7.1', mode: :count, answer: 1583951 do |input, total|
   dir_stack = []
   fs = { "/" => {}}
   input.each do |line|
+    dir_re  = /dir (.+)/
+    file_re = /(\d+) (.+)/
+    cd_re   = /\$ cd (.+)/
 
-    if line.scan(/dir (.+)/).first
+    if dir_re.match(line)
       cwd = fs.dig(*dir_stack)
       dir = line.scan(/dir (.+)/).first.first
       cwd[dir] ||= {}
     end
 
-    if line.scan(/(\d+) (.+)/).first
+    if file_re.match(line)
       cwd = fs.dig(*dir_stack)
       file = line.scan(/(\d+) (.+)/).first
       cwd[:_name] ||= dir_stack.last
