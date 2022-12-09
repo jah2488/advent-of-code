@@ -56,7 +56,7 @@ puzzle '8.1', mode: :count, input: :raw, answer: 1705 do |input, total|
   total
 end
 
-puzzle '8.2', mode: :count, input: :raw, answer: 371200 do |input, top_score|
+puzzle '8.2', mode: :count, answer: 371200 do |input, top_score|
   grid = input.split("\n").map { |x| x.split('') }
   puts "Total: #{perimeter(grid)}".bold
   x, y = 0, 0
