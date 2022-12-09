@@ -46,13 +46,41 @@ class Point
   def ==(other)   = x == other.x && y == other.y
 end
 
-def simulate(input, rope)
+def visualization(rope, points, move, fps = 60.0)
+  out = "MOVE: #{move}\n"
+  midpoint = 40
+  80.times do |x|
+    80.times do |y|
+      if rope.any? { |p| p.x + midpoint == x && p.y + midpoint == y }
+        rope_index = rope.index { |p| p.x + midpoint == x && p.y + midpoint == y }
+        if rope_index.zero?
+          out << "H".bold.red
+        else
+          out << rope_index.to_s.send([:green, :yellow, :blue, :purple, :red].sample)
+        end
+      elsif x == midpoint && y == midpoint
+        out << "s".bold
+      elsif points.any? { |p| p.x + midpoint == x && p.y + midpoint == y }
+        out << "*"
+      else
+        out << " ".shadow(1)
+      end
+    end
+    out << "\n"
+  end
+  puts "".at(0,0)
+  puts out
+  sleep 1.0 / fps
+end
+
+def simulate(input, rope, visualize = false)
   head = rope.first
   tail = rope.last
   points = []
   input.each do |move|
     direction, distance = move.split(' ')
     distance.to_i.times do
+      visualization(rope, points, move) if visualize
       case direction
       when 'U' then head.x -= 1
       when 'D' then head.x += 1
@@ -75,35 +103,10 @@ def simulate(input, rope)
   points.count
 end
 
-puzzle '9.1', mode: :count, answer: 5710 do |input, total|
+xpuzzle '9.1', mode: :count, answer: 5710 do |input, total|
   simulate(input, [Point.zero, Point.zero])
 end
 
 puzzle '9.2', mode: :count, answer: 2259 do |input, total|
-  simulate(input, Array.new(10) { Point.zero })
-end
-
-def visualize
-  # clear
-  # out = "MOVE: #{move}\n\n"
-  # 50.times do |x|
-  #   50.times do |y|
-  #     if rope.any? { |p| p.x + 25 == x && p.y + 25 == y }
-  #       rope_index = rope.index { |p| p.x + 25 == x && p.y + 25 == y }
-  #       if rope_index.zero?
-  #         out << "H".bold
-  #       else
-  #         out << rope_index.to_s
-  #       end
-  #     elsif x == 25 && y == 25
-  #       out << "s".bold
-  #     elsif points.any? { |p| p.x + 25 == x && p.y + 25 == y }
-  #       out << "*"
-  #     else
-  #       out << "."
-  #     end
-  #   end
-  #   out << "\n"
-  # end
-  # puts out
+  simulate(input, Array.new(10) { Point.zero }, true)
 end
