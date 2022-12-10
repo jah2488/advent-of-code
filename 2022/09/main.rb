@@ -1,4 +1,3 @@
-require 'set'
 def test
   puts "--- Test Data In Use ---".italic.yellow
   [
@@ -25,6 +24,8 @@ def test2
     "U 20",
   ] # ?, 36
 end
+
+
 
 class Point
   attr_accessor :x, :y
@@ -103,10 +104,12 @@ def simulate(input, rope, visualize = false)
   points.count
 end
 
-xpuzzle '9.1', mode: :count, answer: 5710 do |input, total|
+xpuzzle '9.1', mode: :count, answer: 5710 do |input, _|
   simulate(input, [Point.zero, Point.zero])
 end
 
-puzzle '9.2', mode: :count, answer: 2259 do |input, total|
-  simulate(input, Array.new(10) { Point.zero }, true)
+puzzle '9.2', mode: :count, answer: 2259 do |input, _|
+  simulate(input, Array.new(10) { Point.zero })
 end
+
+

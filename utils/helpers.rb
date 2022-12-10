@@ -357,3 +357,18 @@ class Integer
     "\033[35m#{self}\033[0m"
   end
 end
+
+# converts cartesian coordinates to polar coordinates
+def polar(x, y)
+  r = Math.sqrt(x**2 + y**2)
+  theta = Math.atan2(y, x)
+  [r, theta]
+end
+
+# converts polar coordinates to cartesian coordinates
+def cartesian(r, theta)
+  x = r * Math.cos(theta)
+  y = r * Math.sin(theta)
+  [x, y]
+end
+
