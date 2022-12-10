@@ -118,6 +118,20 @@ def clamp(n, min, max = Float::INFINITY)
   n
 end
 
+def border(content, padding = 0)
+  if content.include?("\n")
+    width = content.split("\n").map(&:length).max + 2 + (padding * 2
+  else
+    width = content.length + 2 + (padding * 2)
+  end
+  content = content.split("\n").map { |x| " " * padding + x + " " * padding }.join("\n")
+  out = ""
+  out << corner_nw + floor * width + corner_ne + "\n"
+  out << wall + content + wall + "\n"
+  out << corner_sw + floor * 42 + corner_se + "\n"
+  puts out
+end
+
 
 def box(width, height)
   puts cnw + smooth_floor * (width - 2) + cne
@@ -247,6 +261,10 @@ def h_meter(value, max, width: 20, height: 1, color: :green)
   puts corner_sw + "".ljust(value.to_s.chars.length, floor) + door_s + floor * (width) + corner_se
 end
 class String
+  def merge(str)
+    self.chars.map.with_index { |c, i| str.chars[i] ? str.chars[i] : c }.join
+  end
+
   def onoff(state, on, off)
     if state.respond_to?(:call)
       if state.call(self)
