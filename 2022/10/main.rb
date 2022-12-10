@@ -226,11 +226,11 @@ def visualize(fps = 24.0, pixels = nil)
   sleep 1.0 / fps
 end
 
-puzzle '10.1', mode: :count, answer: nil do |input, cycle|
+puzzle '10.1', mode: :count, answer: 11820 do |input, cycle|
   solve(input)
 end
 
-xpuzzle '10.2', mode: :count, answer: nil do |input, total|
+xpuzzle '10.2', mode: :count, answer: EPJBRKAH do |input, total|
   width  = 40
   height = 6
   sprite = "###"
