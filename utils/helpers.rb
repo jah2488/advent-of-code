@@ -120,7 +120,7 @@ end
 
 def border(content, padding = 0)
   if content.include?("\n")
-    width = content.split("\n").map(&:length).max + 2 + (padding * 2
+    width = content.split("\n").map(&:length).max + 2 + (padding * 2)
   else
     width = content.length + 2 + (padding * 2)
   end
@@ -287,6 +287,13 @@ class String
   
   def col(n)
     "\033[#{n}G#{self}"
+  end
+
+  def shade(n, min: 0, max:)
+    new_min = 0
+    new_max = 255
+    new_val = (((n - min) * (new_max - new_min)) / (max - min)) + new_min
+    "\033[48;2;#{new_val};#{new_val};#{new_val}m#{self}\033[0m"
   end
 
   def shadow(level = 1)
