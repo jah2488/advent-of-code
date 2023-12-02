@@ -1,8 +1,8 @@
 // deno-lint-ignore-file no-control-regex
 // deno-lint-ignore-file no-unused-functions
 
-const log = (msg: string): void => console.log(msg);
-const clear = (direction: string = "up"): void =>
+export const log = (msg: string): void => console.log(msg);
+export const clear = (direction: string = "up"): void =>
   console.log(`\x1b[${direction === "up" ? 1 : 2}J`);
 
 const cursor = (x: number, y: number): void => console.log(`\x1b[${y};${x}H`);
@@ -60,7 +60,7 @@ type Style = typeof thick | typeof square | typeof rounded;
 const smooth_floor = "▒";
 const smooth_wall = "▓";
 
-const clamp = (n: number, min: number, max: number = 999999): number => {
+export const clamp = (n: number, min: number, max: number = 999999): number => {
   if (n < min) return min;
   if (n > max) return max;
   return n;
@@ -97,27 +97,27 @@ const box = (
   log(style.corner_sw + style.floor.repeat(width - 2) + style.corner_se);
 };
 
-const fbox = (cb: () => string, style: Style = thick): void => {
+export const fbox = (cb: () => string, style: Style = thick): void => {
   const { columns } = Deno.consoleSize();
   box(columns, 3, cb, style);
 };
 
-const bg_yellow = (o: string | number): string => `\x1b[43;1m${o}\x1b[0m`;
-const bg_red = (o: string | number): string => `\x1b[41;1m${o}\x1b[0m`;
-const bg_green = (o: string | number): string => `\x1b[42;1m${o}\x1b[0m`;
-const bg_blue = (o: string | number): string => `\x1b[44;1m${o}\x1b[0m`;
-const bg_purple = (o: string | number): string => `\x1b[45;1m${o}\x1b[0m`;
-
-const bold = (o: string | number): string => `\x1b[1m${o}\x1b[0m`;
-const italic = (o: string | number): string => `\x1b[3m${o}\x1b[0m`;
-const black = (o: string | number): string => `\x1b[30m${o}\x1b[0m`;
-const red = (o: string | number): string => `\x1b[31m${o}\x1b[0m`;
-const green = (o: string | number): string => `\x1b[32m${o}\x1b[0m`;
-const yellow = (o: string | number): string => `\x1b[33m${o}\x1b[0m`;
-const blue = (o: string | number): string => `\x1b[34m${o}\x1b[0m`;
-const purple = (o: string | number): string => `\x1b[35m${o}\x1b[0m`;
-
-const rainbowify = (s: string): string => {
+export const bg_yellow = (o: string | number): string =>
+  `\x1b[43;1m${o}\x1b[0m`;
+export const bg_red = (o: string | number): string => `\x1b[41;1m${o}\x1b[0m`;
+export const bg_green = (o: string | number): string => `\x1b[42;1m${o}\x1b[0m`;
+export const bg_blue = (o: string | number): string => `\x1b[44;1m${o}\x1b[0m`;
+export const bg_purple = (o: string | number): string =>
+  `\x1b[45;1m${o}\x1b[0m`;
+export const bold = (o: string | number): string => `\x1b[1m${o}\x1b[0m`;
+export const italic = (o: string | number): string => `\x1b[3m${o}\x1b[0m`;
+export const black = (o: string | number): string => `\x1b[30m${o}\x1b[0m`;
+export const red = (o: string | number): string => `\x1b[31m${o}\x1b[0m`;
+export const green = (o: string | number): string => `\x1b[32m${o}\x1b[0m`;
+export const yellow = (o: string | number): string => `\x1b[33m${o}\x1b[0m`;
+export const blue = (o: string | number): string => `\x1b[34m${o}\x1b[0m`;
+export const purple = (o: string | number): string => `\x1b[35m${o}\x1b[0m`;
+export const rainbowify = (s: string): string => {
   const colors = [red, yellow, green, blue, purple];
   let i = 0;
   return s

@@ -1,4 +1,5 @@
-import "../utils.ts";
+// deno-lint-ignore-file
+import { black, clamp, clear, fbox, log } from "../utils.ts";
 
 /*
   STEP ONE:
@@ -27,6 +28,15 @@ const numbers = {
   "seven": 7,
   "eight": 8,
   "nine": 9,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 4,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 9,
 };
 
 // o,   t,      f,       s,   e, n
@@ -36,7 +46,7 @@ const numbers = {
 // _   _  e    _  _    _  n,  t, _
 // _   _  _    _  _    _  _   _  _
 
-const test = (str: string): string => {
+const stest = (str: string): string => {
   let left = null;
   let right = null;
   let buffer = "";
@@ -74,6 +84,32 @@ const test = (str: string): string => {
   return `${left}${right}`;
 };
 
+const test = (str: string): string => {
+  const nums = "one 1 two 2 three 3 four 4 five 5 six 6 seven 7 eight 8 nine 9"
+    .split(" ");
+  let min = { index: 100, value: "0" };
+  let max = { index: 0, value: "0" };
+  nums.map((n) => {
+    for (let i = 0; i < str.length; i++) {
+      let window = str.slice(i, clamp(i + n.length, 0, str.length));
+      if (window === n) {
+        if (i < min.index) {
+          min.index = i;
+          min.value = n;
+        }
+        if (i > max.index) {
+          max.index = i;
+          max.value = n;
+        }
+      }
+    }
+  });
+
+  return `${numbers[min.value as keyof typeof numbers]}${
+    numbers[max.value as keyof typeof numbers]
+  }`;
+};
+
 [
   ["two1nine", 29],
   ["eightwothree", 83],
@@ -101,14 +137,17 @@ const test = (str: string): string => {
   ["478", 48],
   ["sixxxseven", 67],
   ["8two", 82],
+  ["1eightwo", 12],
 ].forEach(([input, expected]) => {
-  console.log(`${test(input as string)} should be ${expected}`);
+  log(`${test(input as string)} should be ${expected} ${input}`);
 });
 
-// Deno.readTextFile("./01/input.txt").then((data) => {
-//   let sum = 0;
-//   data.split("\n").forEach((line) => {
-//     sum += parseInt(test(line));
-//   });
-//   console.log(sum);
-// });
+Deno.readTextFile("./01/input.txt").then((data) => {
+  let sum = 0;
+  data.split("\n").forEach((line) => {
+    const out = test(line);
+    log(`${line} | ${out}`);
+    sum += parseInt(out);
+  });
+  log("" + sum);
+});
